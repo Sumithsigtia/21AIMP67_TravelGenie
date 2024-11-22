@@ -22,7 +22,7 @@ const teamMembers = [
     name: 'Pankaj Kumar',
     designation: 'Student at CSE Dept',
     image:
-      '/destinations/pankaj.jpeg',
+      '/destinations/Pankaj.jpeg',
   },
   {
     id: 4,
