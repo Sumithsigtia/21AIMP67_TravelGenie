@@ -25,10 +25,9 @@ def fetch_flight_details(url):
     time.sleep(10)  # Wait for the page to load (adjust as needed)
 
     # Fetch all elements
-    airline_elements = driver.find_elements(By.XPATH, "//p[contains(@class, 'body-md text-primary truncate max-w-[125px] airlineTruncate font-medium')]")
-    pricing_elements = driver.find_elements(By.XPATH, "//h5[@data-testid='pricing' and contains(@class, 'h5 text-primary font-bold')]")
-    duration_elements = driver.find_elements(By.XPATH, "//div[@class='flex items-center w-[110px] justify-center']//p[@class='body-xs text-secondary']")
-    
+    airline_elements = driver.find_elements(By.XPATH, "//p[contains(@class, 'body-md') and contains(@class, 'text-primary') and contains(@class, 'airlineTruncate') and contains(@class, 'font-medium')]")
+    pricing_elements = driver.find_elements(By.XPATH, "//h6[@data-testid='pricing' and contains(@class, 'h6') and contains(@class, 'text-primary') and contains(@class, 'font-bold')]")
+    duration_elements = driver.find_elements(By.XPATH, "//div[@class='text-center']//p[contains(@class, 'body-sm') and contains(@class, 'text-secondary')]")
     # Lists to store fetched data
     pricing_list = []
     airline_list = []
@@ -45,9 +44,9 @@ def fetch_flight_details(url):
         duration_list.append(duration_info)
     driver.quit()
     return {
-        "pricing": pricing_list,
-        "airlines": airline_list,
-        "durations": duration_list
+        "pricing": pricing_list[:3],
+        "airlines": airline_list[:3],
+        "durations": duration_list[:3]
     }
 
 # Flask route to fetch and return flight details
@@ -55,8 +54,8 @@ def fetch_flight_details(url):
 def get_flight_details():
     source = request.args.get('source', default='BLR')  # Default to 'BLR' if not provided
     destination = request.args.get('destination', default='DEL')  # Default to 'DEL' if not provided
-    departure_date = request.args.get('departure_date', default='03092024')  # Default to '20240903'
-    return_date = request.args.get('return_date', default='04092024')  # Default to '20240904'
+    departure_date = request.args.get('departure_date', default='10042025')  # Default to '20240903'
+    return_date = request.args.get('return_date', default='12042025')  # Default to '20240904'
     
     
     url = build_url(source, destination, departure_date, return_date)
@@ -82,10 +81,16 @@ def fetch_hotel_details(url):
     time.sleep(10)  # Wait for the page to load (adjust as needed)
 
     # Fetch hotel names and their associated prices and images
-    hotel_elements = driver.find_elements(By.XPATH, "//h3[@data-testid='hotel-name' and contains(@class, 'h6 truncate font-medium text-primary')]")
-    price_elements = driver.find_elements(By.XPATH, "//h5[contains(@class, 'h5 text-right text-primary font-medium')]")
-    image_elements = driver.find_elements(By.XPATH, "//img[@loading='lazy' and @style='object-fit: cover; height: 200px;']")
+
+    # hotel_elements = driver.find_elements(By.XPATH, "//h3[@data-testid='hotel-name' and contains(@class, 'h6 truncate font-medium text-primary')]")
+    # price_elements = driver.find_elements(By.XPATH, "//h5[contains(@class, 'h5 text-right text-primary font-medium')]")
+    # image_elements = driver.find_elements(By.XPATH, "//img[@loading='lazy' and @style='object-fit: cover; height: 200px;']")
     
+    hotel_elements = driver.find_elements(By.XPATH, "//h2[@data-testid='hotel-name' and contains(@class, 'h6') and contains(@class, 'truncate') and contains(@class, 'font-medium') and contains(@class, 'text-primary')]")
+    price_elements = driver.find_elements(By.XPATH, "//div[contains(@class, 'h5') and contains(@class, 'text-right') and contains(@class, 'text-primary') and contains(@class, 'font-medium')]")
+    image_elements = driver.find_elements(By.XPATH, "//img[contains(@style, 'object-fit: cover') and contains(@style, 'height: 200px')]")
+    
+
     hotel_data = []
 
     for i in range(min(len(hotel_elements), len(price_elements), len(image_elements))):
