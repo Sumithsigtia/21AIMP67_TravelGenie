@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenAI } from "@google/genai";
 import PlaceholdersAndVanishInputDemo from '@/app/input/components/source';
 import PlaceholdersAndVanishDestinationDemo from '@/app/input/components/destination';
 import DateInput from '@/app/input/components/date';
@@ -17,7 +17,7 @@ if (!apiKey) {
   throw new Error('API_KEY environment variable is not set.');
 }
 
-const genAI = new GoogleGenerativeAI(apiKey);
+const genAI = new GoogleGenAI(apiKey);
 const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
 export default function Home() {
