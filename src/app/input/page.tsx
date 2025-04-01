@@ -10,15 +10,15 @@ import SignupFormDemo from '@/app/input/components/signup-form';
 import CircularIndeterminate from '@/components/ui/CircularIndeterminate'; // Import CircularIndeterminate
 import { useRouter } from 'next/navigation';
 
-// Initialize GoogleGenerativeAI
+// Initialize GoogleGenerativeAI with the correct API structure
 const apiKey: string | undefined = process.env.NEXT_PUBLIC_GOOGLE_API_KEY;
 
 if (!apiKey) {
   throw new Error('API_KEY environment variable is not set.');
 }
 
-const genAI = new GoogleGenAI(apiKey);
-const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+// Instantiate GoogleGenAI
+const genAI = new GoogleGenAI({ apiKey });
 
 export default function Home() {
   const [step, setStep] = useState(1);
@@ -95,8 +95,16 @@ export default function Home() {
 
         console.log('Sending request for itinerary:', messageForItinerary);
 
-        const itineraryResult = await model.generateContent(messageForItinerary);
-        const formattedItinerary = itineraryResult.response.text();
+        // Use the new API method: generateContentStream
+        const itineraryResponse = await genAI.models.generateContentStream({
+          model: 'gemini-2.0-flash',
+          contents: messageForItinerary,
+        });
+
+        let formattedItinerary = '';
+        for await (const chunk of itineraryResponse) {
+          formattedItinerary += chunk.text; // Collect the response text
+        }
 
         // Second API Call: Additional Details
         const messageForDetails = `Generate additional details for the trip  from 
@@ -104,13 +112,21 @@ export default function Home() {
 
         console.log('Sending request for additional details:', messageForDetails);
 
-        const detailsResult = await model.generateContent(messageForDetails);
-        const formattedDetails = detailsResult.response.text();
+        // Use the new API method: generateContentStream
+        const detailsResponse = await genAI.models.generateContentStream({
+          model: 'gemini-2.0-flash',
+          contents: messageForDetails,
+        });
+
+        let formattedDetails = '';
+        for await (const chunk of detailsResponse) {
+          formattedDetails += chunk.text; // Collect the response text
+        }
 
         // Process and combine the responses
         if (formattedItinerary) {
           let formattedItineraryText = formattedItinerary.replace(/[#*]/g, ''); // Remove # and *
-          formattedItineraryText = formattedItineraryText.split('\n').map((line:string) => line.trim()).join('<br/>');
+          formattedItineraryText = formattedItineraryText.split('\n').map((line: string) => line.trim()).join('<br/>');
 
           let formattedDetailsText = '';
           if (formattedDetails) {
